@@ -1,0 +1,170 @@
+.pad-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: var(--pad-bezel);
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #000;
+  align-self: center;
+  width: fit-content;
+}
+
+.pad-grid__row {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.pad-cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.pad {
+  --rim: transparent;
+  --rim-glow: transparent;
+  position: relative;
+  width: 62px;
+  height: 62px;
+  border-radius: 7px;
+  border: none;
+  background: linear-gradient(150deg, var(--pad-face-hover) 0%, var(--pad-face-off) 55%, var(--pad-face-shadow) 100%);
+  cursor: pointer;
+  box-shadow:
+    0 0 0 2.5px var(--rim),
+    0 0 10px 1px var(--rim-glow),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    inset 0 -2px 3px rgba(0, 0, 0, 0.12),
+    0 2px 2px rgba(0, 0, 0, 0.4);
+  touch-action: none;
+  transition: transform 0.04s ease, box-shadow 0.08s ease;
+}
+
+.pad--held,
+.pad--triggered {
+  transform: scale(0.95);
+  --rim: #fff6e6;
+  --rim-glow: rgba(255, 246, 230, 0.7);
+}
+
+.pad--off {
+  --rim: #2a2a2a;
+  --rim-glow: transparent;
+}
+
+.pad--loaded {
+  --rim: var(--pad-rim-idle);
+  --rim-glow: rgba(63, 143, 240, 0.35);
+}
+
+.pad--loaded-selected {
+  --rim: var(--pad-rim-selected);
+  --rim-glow: rgba(255, 171, 64, 0.55);
+}
+
+.pad--muted {
+  --rim: var(--led-red);
+  --rim-glow: rgba(255, 65, 54, 0.5);
+}
+
+.pad--unmuted {
+  --rim: var(--led-amber);
+  --rim-glow: rgba(242, 169, 59, 0.4);
+}
+
+.pad--chop-has {
+  --rim: #4fd1e0;
+  --rim-glow: rgba(79, 209, 224, 0.35);
+}
+
+.pad--chop-selected {
+  --rim: var(--btn-blue);
+  --rim-glow: rgba(41, 182, 232, 0.6);
+}
+
+.pad--seq-empty {
+  --rim: #3a3a3a;
+  --rim-glow: transparent;
+}
+
+.pad--seq-has-events {
+  --rim: var(--led-green);
+  --rim-glow: rgba(61, 220, 132, 0.3);
+}
+
+.pad--seq-current {
+  --rim: var(--led-green);
+  --rim-glow: rgba(61, 220, 132, 0.65);
+  animation: pulse-rim 1s infinite;
+}
+
+.pad--seq-playing {
+  --rim: #7dffb6;
+  --rim-glow: rgba(61, 220, 132, 0.8);
+}
+
+.pad--fx-idle {
+  --rim: var(--btn-orange);
+  --rim-glow: rgba(226, 98, 42, 0.3);
+}
+
+.pad--fx-active {
+  --rim: #ff8a4c;
+  --rim-glow: rgba(255, 138, 76, 0.7);
+}
+
+.pad--fx-latched {
+  --rim: #ffd9b0;
+  --rim-glow: rgba(255, 217, 176, 0.85);
+}
+
+.pad--knobfx-idle {
+  --rim: var(--btn-blue);
+  --rim-glow: rgba(41, 182, 232, 0.3);
+}
+
+.pad--knobfx-affected {
+  --rim: #5cd0f5;
+  --rim-glow: rgba(92, 208, 245, 0.7);
+}
+
+@keyframes pulse-rim {
+  50% { --rim-glow: rgba(61, 220, 132, 0.2); }
+}
+
+.pad__number {
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  font-size: 9px;
+  color: rgba(30, 28, 24, 0.45);
+  font-weight: 700;
+}
+
+.pad__seq-name {
+  position: absolute;
+  bottom: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 8px;
+  color: #241f18;
+  font-weight: 700;
+}
+
+.pad__shift-label {
+  font-size: 6.5px;
+  color: var(--panel-text-dim);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  text-align: center;
+  max-width: 62px;
+}
+
+.pad__shift-label--active {
+  color: var(--panel-text);
+}

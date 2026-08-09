@@ -1,0 +1,89 @@
+:root {
+  --page-bg: #1a1a1d;
+  --chassis-body: #ddd9d0;
+  --chassis-body-light: #e9e6df;
+  --chassis-body-shadow: #b9b5aa;
+  --chassis-edge: #8f8b80;
+  --panel-text: #2a2823;
+  --panel-text-dim: #6b675e;
+  --akai-red: #d81f2a;
+
+  /* Glossy black top panel (logo/volume/display/meters/speaker) - product photos show this as a
+     visually distinct zone from the cream lower body, not one uniform surface. */
+  --top-panel-bg: #101012;
+  --top-panel-bg-light: #1c1c1f;
+  --top-panel-text: #e8e6e0;
+
+  /* Buttons default to dark charcoal keycaps with white text on the real unit - only the
+     mode-specific accent colors (orange/blue) and a few special cases (Play/Stop) break from this. */
+  --btn-grey: #4a4a4c;
+  --btn-grey-dark: #313133;
+  --btn-grey-active: #6b6b6e;
+  --btn-text: #f2f0ea;
+  --btn-orange: #e2622a;
+  --btn-orange-dim: #8a3d1c;
+  --btn-blue: #29b6e8;
+  --btn-blue-dim: #1c6f8f;
+  --btn-red-accent: #e8302a;
+  --btn-plate-bg: #0d0d0f;
+
+  /* Knobs/encoder/fader cap are white-cream plastic with a grey top, not black. */
+  --knob-body: #f2f0e9;
+  --knob-body-shadow: #c9c5ba;
+  --knob-cap: #9a978d;
+  --knob-indicator: #4a4740;
+
+  --led-off: #6b6862;
+  --led-dim-red: #7a2020;
+  --led-red: #ff4136;
+  --led-green: #3ddc84;
+  --led-amber: #f2a93b;
+
+  --screen-bg: #08090b;
+  --screen-text: #e8e6e0;
+  --screen-text-dim: #7a7870;
+  --screen-accent: #f2a93b;
+  --screen-accent2: #7fd3ff;
+  --screen-green: #3ddc84;
+  --screen-red: #ff5b52;
+  --screen-select-bg: #262a2f;
+
+  --pad-bezel: #0c0c0d;
+  --pad-face-off: #c6c2b8;
+  --pad-face-hover: #d6d2c8;
+  --pad-face-shadow: #a29e93;
+  --pad-rim-idle: #3f8ff0;
+  --pad-rim-selected: #ffab40;
+
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--page-bg);
+  color: var(--screen-text);
+  font-family: 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--screen-accent);
+  color: #000;
+}

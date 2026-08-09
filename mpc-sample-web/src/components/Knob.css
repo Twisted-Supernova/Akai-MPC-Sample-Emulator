@@ -1,0 +1,95 @@
+.knob-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  user-select: none;
+}
+
+.knob-arc-frame {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.knob-arc-svg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.knob {
+  position: relative;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, var(--knob-body) 0%, var(--knob-body-shadow) 78%);
+  border: 1px solid #b5b1a6;
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.knob--dragging {
+  box-shadow: 0 0 0 3px var(--screen-accent2), 0 2px 3px rgba(0, 0, 0, 0.35);
+}
+
+.knob__cap {
+  position: absolute;
+  top: 12%;
+  left: 12%;
+  right: 12%;
+  bottom: 30%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #b3afa4, var(--knob-cap) 75%);
+  box-shadow: inset 0 -1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.knob__body {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.knob__indicator {
+  position: absolute;
+  top: 8%;
+  left: 50%;
+  width: 2.5px;
+  height: 32%;
+  background: var(--knob-indicator);
+  border-radius: 2px;
+  transform: translateX(-50%);
+}
+
+.knob__label {
+  font-size: 9px;
+  color: var(--panel-text-dim);
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.knob__value {
+  font-size: 8px;
+  color: var(--panel-text);
+}
+
+.knob__mismatch {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 10px;
+  color: var(--led-amber);
+  animation: blink 1s infinite;
+}
+
+.knob__mismatch--left {
+  left: -14px;
+}
+
+.knob__mismatch--right {
+  right: -14px;
+}
+
+@keyframes blink {
+  50% { opacity: 0.2; }
+}

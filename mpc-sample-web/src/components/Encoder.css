@@ -1,0 +1,55 @@
+.encoder-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+.encoder {
+  position: relative;
+  border-radius: 50%;
+  background:
+    repeating-conic-gradient(from 0deg, var(--knob-body) 0deg 4deg, var(--knob-body-shadow) 4deg 8deg);
+  border: 1px solid #b5b1a6;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.35), inset 0 0 0 6px var(--knob-body);
+  cursor: ns-resize;
+  touch-action: none;
+}
+
+.encoder::after {
+  content: '';
+  position: absolute;
+  inset: 14%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fbfaf7, var(--knob-body-shadow) 85%);
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+
+.encoder--pressed {
+  box-shadow: 0 0 0 3px var(--led-amber), inset 0 0 0 6px var(--knob-body);
+}
+
+.encoder__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  z-index: 1;
+}
+
+.encoder__tick {
+  position: absolute;
+  top: 18%;
+  left: 50%;
+  width: 3px;
+  height: 22%;
+  background: var(--knob-indicator);
+  transform: translateX(-50%);
+  border-radius: 2px;
+}
+
+.encoder__label {
+  font-size: 8px;
+  color: var(--panel-text-dim);
+  text-transform: uppercase;
+  font-weight: 700;
+}

@@ -1,0 +1,149 @@
+.hw-btn-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  user-select: none;
+}
+
+.hw-btn {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 64px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: 6px;
+  border: 1px solid #202022;
+  background: linear-gradient(180deg, var(--btn-grey) 0%, var(--btn-grey-dark) 100%);
+  color: var(--btn-text);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.12) inset, 0 3px 0 rgba(0, 0, 0, 0.35), 0 4px 4px rgba(0, 0, 0, 0.3);
+  white-space: nowrap;
+  transition: transform 0.05s ease, box-shadow 0.05s ease;
+}
+
+.hw-btn--small {
+  height: 24px;
+  min-width: 44px;
+  font-size: 8px;
+}
+
+.hw-btn--square {
+  min-width: 30px;
+  width: 30px;
+  padding: 0;
+}
+
+.hw-btn--has-accent {
+  height: 36px;
+  padding-bottom: 8px;
+  align-items: flex-start;
+  padding-top: 6px;
+}
+
+.hw-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.1) inset, 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+.hw-btn--orange {
+  background: linear-gradient(180deg, #ff8a4c 0%, var(--btn-orange) 100%);
+  color: #fff8f2;
+  border-color: #7a3512;
+}
+
+.hw-btn--blue {
+  background: linear-gradient(180deg, #5cd0f5 0%, var(--btn-blue) 100%);
+  color: #042530;
+  border-color: #0f6f8f;
+}
+
+.hw-btn--transport {
+  background: linear-gradient(180deg, var(--btn-grey) 0%, var(--btn-grey-dark) 100%);
+}
+
+.hw-btn--disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.hw-btn__led {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--led-off);
+  flex-shrink: 0;
+  box-shadow: 0 0 0 rgba(0, 0, 0, 0);
+}
+
+.hw-btn--dim .hw-btn__led {
+  background: #8a8680;
+}
+
+.hw-btn--active .hw-btn__led {
+  background: var(--led-green);
+  box-shadow: 0 0 5px 1px var(--led-green);
+}
+
+.hw-btn--orange.hw-btn--active .hw-btn__led {
+  background: #fff2e4;
+  box-shadow: 0 0 5px 1px #fff2e4;
+}
+
+.hw-btn--orange.hw-btn--active {
+  background: linear-gradient(180deg, #ffb27a 0%, #ff8a4c 100%);
+}
+
+.hw-btn--blue.hw-btn--active .hw-btn__led {
+  background: #06222c;
+  box-shadow: none;
+}
+
+.hw-btn--blue.hw-btn--active {
+  background: linear-gradient(180deg, #8fe0ff 0%, #5cd0f5 100%);
+}
+
+.hw-btn--active {
+  background: linear-gradient(180deg, var(--btn-grey-active) 0%, var(--btn-grey) 100%);
+}
+
+.hw-btn__label {
+  line-height: 1;
+}
+
+.hw-btn__accent-bar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 4px;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--led-dim-red, #7a2020);
+  opacity: 0.55;
+}
+
+.hw-btn__accent-bar--active {
+  background: var(--btn-red-accent);
+  opacity: 1;
+  box-shadow: 0 0 5px 1px var(--btn-red-accent);
+}
+
+.hw-btn__shift {
+  font-size: 7px;
+  color: var(--panel-text-dim);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.hw-btn__shift--active {
+  color: var(--panel-text);
+}
