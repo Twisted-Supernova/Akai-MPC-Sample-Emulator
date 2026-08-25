@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useProjectState, useCurrentSequence } from '../../state/ProjectContext';
-import { PPQN } from '../../data/constants';
+import { PPQN, TICKS_PER_BAR } from '../../data/constants';
 import ScreenChrome from './ScreenChrome';
 
 const Q_TICKS = { '1/4': PPQN, '1/8': PPQN / 2, '1/16': PPQN / 4, '1/32': PPQN / 8 };
@@ -9,7 +9,7 @@ export default function StepEditView() {
   const { project, dispatchProject, ui, dispatchUi } = useProjectState();
   const seq = useCurrentSequence();
   const qTicks = Q_TICKS[seq.q] ?? PPQN / 4;
-  const totalSteps = Math.floor((seq.bars * PPQN * 4) / qTicks);
+  const totalSteps = Math.floor((seq.bars * TICKS_PER_BAR) / qTicks);
   const currentStep = Math.floor(ui.playheadTick / qTicks);
 
   const stepEvents = useMemo(() => {
@@ -45,7 +45,7 @@ export default function StepEditView() {
         {eventsAtStep.map((e, i) => (
           <div key={i} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 9, padding: '2px 0', borderBottom: '1px solid #1c1e22' }}>
             <span>Pad {e.padBank}{e.pad}</span>
-            <span>{String(Math.floor(e.tick / (PPQN * 4)) + 1).padStart(3, '0')}:{String(Math.floor((e.tick % (PPQN * 4)) / PPQN) + 1).padStart(2, '0')}:{String(e.tick % PPQN).padStart(3, '0')}</span>
+            <span>{String(Math.floor(e.tick / TICKS_PER_BAR) + 1).padStart(3, '0')}:{String(Math.floor((e.tick % TICKS_PER_BAR) / PPQN) + 1).padStart(2, '0')}:{String(e.tick % PPQN).padStart(3, '0')}</span>
             <span>{Math.round((e.velocity ?? 0.85) * 127)}</span>
             <span style={{ cursor: 'pointer', color: 'var(--screen-red)' }} onClick={() => eraseEvent(e)}>Erase</span>
           </div>

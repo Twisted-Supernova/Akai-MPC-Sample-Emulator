@@ -8,7 +8,7 @@ export default function Encoder({ onTurn, onPress, size = 56 }) {
 
   const handlePointerDown = useCallback(
     (e) => {
-      dragState.current = { startY: e.clientY };
+      dragState.current = { startY: e.clientY, turned: false };
       const handleMove = (ev) => {
         const dy = dragState.current.startY - ev.clientY;
         if (Math.abs(dy) > 6) {
@@ -17,6 +17,7 @@ export default function Encoder({ onTurn, onPress, size = 56 }) {
             onTurn(steps);
             setRotation((r) => r + steps * 20);
             dragState.current.startY = ev.clientY;
+            dragState.current.turned = true;
           }
         }
       };
@@ -30,6 +31,13 @@ export default function Encoder({ onTurn, onPress, size = 56 }) {
     [onTurn]
   );
 
+  // A drag that starts and ends inside the element still fires a click on release, so a turn would
+  // otherwise register as a press as well - on the real encoder those are distinct gestures.
+  const handleClick = useCallback(() => {
+    if (dragState.current?.turned) return;
+    onPress?.();
+  }, [onPress]);
+
   return (
     <div className="encoder-wrap">
       <div
@@ -38,7 +46,7 @@ export default function Encoder({ onTurn, onPress, size = 56 }) {
         onPointerDown={(e) => {
           handlePointerDown(e);
         }}
-        onClick={() => onPress?.()}
+        onClick={handleClick}
         onMouseDown={() => setPressed(true)}
         onMouseUp={() => setPressed(false)}
         onMouseLeave={() => setPressed(false)}

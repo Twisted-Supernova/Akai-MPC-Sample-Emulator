@@ -1,5 +1,6 @@
 import { useProjectState } from '../../state/ProjectContext';
 import { seqKey } from '../../state/projectReducer';
+import { PPQN } from '../../data/constants';
 import ScreenChrome from '../Display/ScreenChrome';
 
 export default function TimeCorrectView() {
@@ -72,7 +73,6 @@ export default function TimeCorrectView() {
 }
 
 function quantizeTicksFor(q) {
-  const PPQN = 960;
   const map = { '1/4': PPQN, '1/8': PPQN / 2, '1/16': PPQN / 4, '1/32': PPQN / 8, '1/16t': PPQN / 6, '1/8t': PPQN / 3 };
   return map[q] ?? PPQN / 4;
 }

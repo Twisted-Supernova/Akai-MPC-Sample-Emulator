@@ -1,14 +1,13 @@
 import { useProjectState, useCurrentSequence } from '../../state/ProjectContext';
-import { PPQN } from '../../data/constants';
+import { PPQN, TICKS_PER_BAR } from '../../data/constants';
 import ScreenChrome from './ScreenChrome';
 
 export default function SequenceModeView() {
   const { project, ui } = useProjectState();
   const seq = useCurrentSequence();
   const bpm = seq.bpmMode === 'SEQ' ? seq.bpm : project.globalBpm;
-  const ticksPerBar = PPQN * 4;
-  const bar = Math.floor(ui.playheadTick / ticksPerBar) + 1;
-  const beat = Math.floor((ui.playheadTick % ticksPerBar) / PPQN) + 1;
+  const bar = Math.floor(ui.playheadTick / TICKS_PER_BAR) + 1;
+  const beat = Math.floor((ui.playheadTick % TICKS_PER_BAR) / PPQN) + 1;
 
   return (
     <ScreenChrome playing={ui.playing} footer={['Bars', 'Q', 'RT Swing']}>

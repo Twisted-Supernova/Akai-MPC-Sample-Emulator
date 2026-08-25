@@ -200,6 +200,9 @@ export class AudioEngine {
     if (slotIndex === -1) {
       const evicted = this.padFxSlots[0];
       bypassedName = evicted.padNumber;
+      try {
+        evicted.instance.output.disconnect();
+      } catch (e) { /* ignore */ }
       evicted.instance.dispose();
       this.padFxSlots.shift();
       this.padFxSlots.push(null);
@@ -215,6 +218,9 @@ export class AudioEngine {
   disengagePadFx(padNumber) {
     const idx = this.padFxSlots.findIndex((s) => s && s.padNumber === padNumber);
     if (idx === -1) return;
+    try {
+      this.padFxSlots[idx].instance.output.disconnect();
+    } catch (e) { /* ignore */ }
     this.padFxSlots[idx].instance.dispose();
     this.padFxSlots[idx] = null;
     this.rewirePadFxChain();
@@ -226,10 +232,19 @@ export class AudioEngine {
   }
 
   rewirePadFxChain() {
+    const active = this.padFxSlots.filter(Boolean);
+    // Every edge in the old chain has to go, not just the one leaving preFxBus: a slot's output
+    // still holds its previous connection (to padFxChainOut, or to the slot that used to follow
+    // it), and re-linking on top of that leaves the signal reaching the tail through both paths.
     try {
       this.preFxBus.disconnect();
     } catch (e) { /* ignore */ }
-    const active = this.padFxSlots.filter(Boolean);
+    active.forEach((slot) => {
+      try {
+        slot.instance.output.disconnect();
+      } catch (e) { /* ignore */ }
+    });
+
     let node = this.preFxBus;
     active.forEach((slot) => {
       node.connect(slot.instance.input);
@@ -333,8 +348,13 @@ export class AudioEngine {
       this.compressorColorShaper = this.ctx.createWaveShaper();
       this.compressorBoost = this.ctx.createGain();
     }
+    // The whole insert has to be torn down, not just its entry point: leaving boost -> shaper ->
+    // compressor wired from a previous color=true call means a later color=false call adds a
+    // second, parallel boost -> compressor edge and the signal arrives twice.
     try {
       this.compressorInput.disconnect();
+      this.compressorBoost.disconnect();
+      this.compressorColorShaper.disconnect();
     } catch (e) { /* ignore */ }
     if (bypass) {
       this.compressorInput.connect(this.compressorOutput);
@@ -386,6 +406,7 @@ export class AudioEngine {
     this.inputSourceNode = this.ctx.createMediaStreamSource(stream);
     this.inputCapture = createLiveCapture(this.ctx, 25);
     this.inputSourceNode.connect(this.inputCapture.node);
+    this.inputCapture.sink.connect(this.masterGain); // silent - keeps the capture node pulled
     this.inputMeterAnalyser = this.ctx.createAnalyser();
     this.inputMeterAnalyser.fftSize = 256;
     this.inputSourceNode.connect(this.inputMeterAnalyser);
@@ -402,8 +423,22 @@ export class AudioEngine {
       } catch (e) { /* ignore */ }
       this.inputSourceNode = null;
     }
+    if (this.inputCapture) {
+      try {
+        this.inputCapture.node.disconnect();
+        this.inputCapture.sink.disconnect();
+      } catch (e) { /* ignore */ }
+    }
     this.inputCapture = null;
     this.inputMonitorGain = null;
+  }
+
+  // Releases the microphone itself. detachInputMonitor only unwires the graph - the MediaStream
+  // track stays live (and the browser's recording indicator stays lit) until this runs.
+  stopMicStream() {
+    if (!this.micStream) return;
+    this.micStream.getTracks().forEach((t) => t.stop());
+    this.micStream = null;
   }
 
   getInputCaptureSnapshot(seconds) {

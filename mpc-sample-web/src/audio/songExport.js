@@ -1,7 +1,7 @@
 import { createPadVoice } from './padVoice';
 import { audioBufferToWavBlob } from './wavEncoder';
 import { padKey, seqKey } from '../state/projectReducer';
-import { PPQN } from '../data/constants';
+import { PPQN, TICKS_PER_BAR } from '../data/constants';
 
 // Renders Song Mode to a downloadable WAV via OfflineAudioContext. This replays each sequence's
 // pad hits (amp/filter/envelope/tune/chop/loop faithfully reproduced) through the project's
@@ -11,11 +11,10 @@ import { PPQN } from '../data/constants';
 export async function renderSongToWavBlob(project, engine) {
   if (!project.song.length) return null;
 
-  const ticksPerBar = PPQN * 4;
   const stepDurations = project.song.map(({ bank, seq }) => {
     const sequence = project.sequences[seqKey(bank, seq)];
     const bpm = sequence.bpmMode === 'SEQ' ? sequence.bpm : project.globalBpm;
-    return (sequence.bars * ticksPerBar / PPQN) * (60 / bpm);
+    return (sequence.bars * TICKS_PER_BAR / PPQN) * (60 / bpm);
   });
   const totalDuration = stepDurations.reduce((a, b) => a + b, 0) + 1;
 

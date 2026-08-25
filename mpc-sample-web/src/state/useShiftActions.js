@@ -33,22 +33,35 @@ export function useShiftActions() {
         case 5: // Compressor
           dispatchUi({ type: 'TOGGLE_MENU', menu: 'compressorOpen' });
           break;
-        case 6: // Half Speed (sequence)
+        // Stretching/compressing the event ticks has to move the loop length with them. The
+        // scheduler wraps at bars * ticksPerBar, so leaving `bars` alone after halving the speed
+        // pushes everything past the old length outside the loop, where it never plays again.
+        case 6: { // Half Speed (sequence)
+          const seq = project.sequences[seqKeyStr];
           dispatchProject({
             type: 'UPDATE_SEQUENCE',
             bank: seqBank,
             seq: project.currentSeq,
-            patch: { events: project.sequences[seqKeyStr].events.map((e) => ({ ...e, tick: e.tick * 2 })) },
+            patch: {
+              bars: Math.min(128, seq.bars * 2),
+              events: seq.events.map((e) => ({ ...e, tick: e.tick * 2 })),
+            },
           });
           break;
-        case 7: // Double Speed (sequence)
+        }
+        case 7: { // Double Speed (sequence)
+          const seq = project.sequences[seqKeyStr];
           dispatchProject({
             type: 'UPDATE_SEQUENCE',
             bank: seqBank,
             seq: project.currentSeq,
-            patch: { events: project.sequences[seqKeyStr].events.map((e) => ({ ...e, tick: Math.round(e.tick / 2) })) },
+            patch: {
+              bars: Math.max(1, Math.round(seq.bars / 2)),
+              events: seq.events.map((e) => ({ ...e, tick: Math.round(e.tick / 2) })),
+            },
           });
           break;
+        }
         case 8: // MIDI Config
           dispatchUi({ type: 'TOGGLE_MENU', menu: 'midiConfigOpen' });
           break;

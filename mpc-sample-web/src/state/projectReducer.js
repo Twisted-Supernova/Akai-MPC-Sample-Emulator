@@ -1,4 +1,4 @@
-import { BANKS, PADS_PER_BANK, SEQUENCES_PER_BANK, FILTER_TYPES } from '../data/constants';
+import { BANKS, PADS_PER_BANK, SEQUENCES_PER_BANK, FILTER_TYPES, TICKS_PER_BAR } from '../data/constants';
 
 export function padKey(bank, pad) {
   return `${bank}${String(pad).padStart(2, '0')}`;
@@ -6,6 +6,23 @@ export function padKey(bank, pad) {
 
 export function seqKey(bank, seq) {
   return `${bank}${String(seq).padStart(2, '0')}`;
+}
+
+// Which engaged Pad FX the knobs and B-buttons currently address. `padFx.active` is keyed by pad
+// number, and integer-like keys enumerate in ascending numeric order rather than insertion order,
+// so Object.keys(...)[0] would always hand back the lowest-numbered effect instead of the one the
+// player just pressed. Ordering by engagedAt is what makes "most recent wins" actually hold.
+export function activePadFxNumber(padFx) {
+  let best = null;
+  let bestAt = -Infinity;
+  Object.entries(padFx?.active ?? {}).forEach(([key, entry]) => {
+    const at = entry?.engagedAt ?? 0;
+    if (at >= bestAt) {
+      bestAt = at;
+      best = Number(key);
+    }
+  });
+  return best;
 }
 
 function makeDefaultPad() {
@@ -261,8 +278,8 @@ export function projectReducer(state, action) {
     case 'HALVE_SEQUENCE': {
       const key = seqKey(state.currentSeqBank, state.currentSeq);
       const seq = state.sequences[key];
-      const newBars = Math.max(1, seq.bars / 2);
-      const maxTick = newBars * 4 * 960; // PPQN * beats/bar approximation
+      const newBars = Math.max(1, Math.round(seq.bars / 2));
+      const maxTick = newBars * TICKS_PER_BAR;
       return {
         ...state,
         sequences: {
@@ -276,13 +293,12 @@ export function projectReducer(state, action) {
       const key = seqKey(state.currentSeqBank, state.currentSeq);
       const seq = state.sequences[key];
       const oldBars = seq.bars;
-      const ticksPerBar = 4 * 960;
-      const duplicated = seq.events.map((e) => ({ ...e, tick: e.tick + oldBars * ticksPerBar }));
+      const duplicated = seq.events.map((e) => ({ ...e, tick: e.tick + oldBars * TICKS_PER_BAR }));
       return {
         ...state,
         sequences: {
           ...state.sequences,
-          [key]: { ...seq, bars: oldBars * 2, events: [...seq.events, ...duplicated] },
+          [key]: { ...seq, bars: Math.min(128, oldBars * 2), events: [...seq.events, ...duplicated] },
         },
       };
     }

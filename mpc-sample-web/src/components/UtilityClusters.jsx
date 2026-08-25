@@ -5,6 +5,7 @@ import Btn from './Btn';
 import Encoder from './Encoder';
 import { KNOB_FX_LIST } from '../data/constants';
 import { audioBufferToWavBlob } from '../audio/wavEncoder';
+import { downloadBlob } from '../audio/downloadBlob';
 
 export function ShiftPadBankCluster() {
   const { project, dispatchProject, ui, dispatchUi } = useProjectState();
@@ -41,13 +42,7 @@ export function SampleSelectTapTempoCluster() {
     const pad = project.pads[`${project.currentPadBank}${String(project.currentPad).padStart(2, '0')}`];
     const entry = pad.sampleId ? engine.getBufferEntry(pad.sampleId) : null;
     if (!entry) return;
-    const blob = audioBufferToWavBlob(entry.buffer);
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${entry.name || 'sample'}.wav`;
-    a.click();
-    URL.revokeObjectURL(url);
+    downloadBlob(audioBufferToWavBlob(entry.buffer), `${entry.name || 'sample'}.wav`);
   }
 
   function toggleSampleSelect() {

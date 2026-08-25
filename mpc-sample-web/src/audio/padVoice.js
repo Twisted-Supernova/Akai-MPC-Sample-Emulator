@@ -47,7 +47,6 @@ function buildFilterChain(ctx, filterConfig) {
 
 export function createPadVoice(ctx, { buffer, pad, velocity, destination, now, isNoteOn }) {
   const source = ctx.createBufferSource();
-  source.buffer = buffer;
 
   // Tune: semitone + fine cents -> playbackRate; Warp mode changes duration independent of pitch
   // (approximated here via playbackRate changes only - true time-stretch is out of scope for a
@@ -68,7 +67,9 @@ export function createPadVoice(ctx, { buffer, pad, velocity, destination, now, i
   const region = Math.max(0.001, endOffset - startOffset);
 
   const ampGain = ctx.createGain();
-  const velScale = pad.ampEnv.velSens >= 127 ? 1 : 1 - (1 - velocity) * (pad.ampEnv.velSens / 127);
+  // velSens 0 = ignore velocity entirely, 127 = full velocity scaling. Both ends must fall out of
+  // the same expression - special-casing the top of the range inverts the parameter's meaning.
+  const velScale = 1 - (1 - velocity) * (pad.ampEnv.velSens / 127);
   const peakGain = Math.pow(10, pad.volume / 20) * velScale;
 
   const attackTime = envTimeSeconds(pad.ampEnv.attack);
@@ -102,11 +103,13 @@ export function createPadVoice(ctx, { buffer, pad, velocity, destination, now, i
 
   const playRegionDuration = region / source.playbackRate.value;
 
+  // AudioBufferSourceNode.buffer may only be assigned once - assigning a second time throws
+  // InvalidStateError - so reverse playback has to pick its buffer here rather than swap one in
+  // after the fact. Reverse pre-renders the trimmed region backwards, since the node can't play
+  // backwards natively.
+  source.buffer = pad.reverse ? reverseBufferRegion(ctx, buffer, startOffset, endOffset) : buffer;
+
   if (pad.reverse) {
-    // Reverse playback: build a reversed buffer view lazily (cached per-source since AudioBufferSourceNode
-    // can't play backwards natively).
-    const reversed = reverseBufferRegion(ctx, buffer, startOffset, endOffset);
-    source.buffer = reversed;
     source.start(now, 0);
   } else if (pad.loop) {
     source.loop = true;
@@ -120,7 +123,9 @@ export function createPadVoice(ctx, { buffer, pad, velocity, destination, now, i
   function scheduleDecayOrRelease({ decayFrom, timeParam, atTime, sampleEndTime }) {
     const decayTime = envTimeSeconds(timeParam);
     if (decayFrom === 'Start') {
-      ampGain.gain.setValueAtTime(ampGain.gain.value, atTime);
+      // Anchor on peakGain, not ampGain.gain.value: this runs synchronously at trigger time, before
+      // any automation has been applied, so the getter would return the node's pre-attack default.
+      ampGain.gain.setValueAtTime(Math.max(peakGain, 0.0001), atTime);
       ampGain.gain.linearRampToValueAtTime(0.0001, atTime + decayTime);
     } else {
       const tailStart = Math.max(atTime, sampleEndTime - decayTime);

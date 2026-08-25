@@ -125,9 +125,12 @@ export function usePadActions() {
     (padNum, velocity) => {
       const bpm = currentBpm();
       const bypassedNum = engine.engagePadFx(padNum, PAD_FX_NAME(padNum));
-      engine.setPadFxParams(padNum, {}, bpm);
+      // Re-send this pad's edited parameters, not an empty object: the effect instance is built
+      // fresh on every press, so anything the knobs stored in paramState is otherwise discarded
+      // and the effect silently reverts to its factory defaults.
+      engine.setPadFxParams(padNum, project.padFx.paramState?.[padNum] ?? {}, bpm);
       const padFx = { ...project.padFx };
-      padFx.active = { ...padFx.active, [padNum]: { amount: velocity } };
+      padFx.active = { ...padFx.active, [padNum]: { amount: velocity, engagedAt: Date.now() } };
       if (bypassedNum) delete padFx.active[bypassedNum];
       dispatchProject({ type: 'SET_PAD_FX_STATE', padFx });
     },

@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { useProjectState } from '../../state/ProjectContext';
 import { seqKey } from '../../state/projectReducer';
+import { TICKS_PER_BAR } from '../../data/constants';
 import { renderSongToWavBlob } from '../../audio/songExport';
+import { downloadBlob } from '../../audio/downloadBlob';
 import ScreenChrome from '../Display/ScreenChrome';
 
 export default function SongModeView() {
@@ -28,14 +30,11 @@ export default function SongModeView() {
     setRendering(true);
     try {
       const blob = await renderSongToWavBlob(project, engine);
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `${songName}.wav`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      if (blob) downloadBlob(blob, `${songName}.wav`);
+    } catch {
+      // Without this the render error surfaces only as an unhandled rejection and the user is left
+      // staring at a dialog that closed with no file and no explanation.
+      dispatchUi({ type: 'SET_ERROR', message: 'Could not render the song mixdown' });
     } finally {
       setRendering(false);
       setExportPage(false);
@@ -51,11 +50,10 @@ export default function SongModeView() {
     const seqNum = Number(key.slice(1));
     let events = [];
     let tickCursor = 0;
-    const ticksPerBar = 960 * 4;
     project.song.forEach(({ bank: b, seq: s }) => {
       const sequence = project.sequences[seqKey(b, s)];
       events = events.concat(sequence.events.map((e) => ({ ...e, tick: e.tick + tickCursor })));
-      tickCursor += sequence.bars * ticksPerBar;
+      tickCursor += sequence.bars * TICKS_PER_BAR;
     });
     dispatchProject({
       type: 'UPDATE_SEQUENCE',

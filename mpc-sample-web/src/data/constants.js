@@ -7,6 +7,10 @@ export const SEQUENCES_PER_BANK = 16;
 export const MAX_VOICES = 32;
 export const MAX_SAMPLE_SECONDS = 20 * 60;
 export const PPQN = 960;
+// Bar length in ticks. The sequencer is 4/4 throughout (Scheduler falls back to this, and Half/
+// Double Seq, Time Correct, Step Edit and both song exports all lay events out on it), so it lives
+// here once rather than as a hand-written `4 * 960` at each call site.
+export const TICKS_PER_BAR = PPQN * 4;
 
 // Pad numbering: 1 = bottom-left, 4 = bottom-right, 13 = top-left, 16 = top-right (matches hardware).
 // grid row 0 = top (pads 13-16), row 3 = bottom (pads 1-4)

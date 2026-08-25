@@ -11,6 +11,14 @@ export function createLiveCapture(ctx, seconds = 4) {
   let writeIndex = 0;
 
   const processor = ctx.createScriptProcessor(2048, 2, 2);
+  // A ScriptProcessorNode only receives onaudioprocess while its output path reaches the
+  // destination, so the node needs a route onward even though we only want it as a tap. `sink` is
+  // that route at zero gain: callers must connect it somewhere downstream (see AudioEngine /
+  // makeCaptureLoopEffect) or the ring buffer silently stays all zeros.
+  const sink = ctx.createGain();
+  sink.gain.value = 0;
+  processor.connect(sink);
+
   processor.onaudioprocess = (e) => {
     const inL = e.inputBuffer.getChannelData(0);
     const inR = e.inputBuffer.numberOfChannels > 1 ? e.inputBuffer.getChannelData(1) : inL;
@@ -38,5 +46,5 @@ export function createLiveCapture(ctx, seconds = 4) {
     return out;
   }
 
-  return { node: processor, snapshot };
+  return { node: processor, sink, snapshot };
 }

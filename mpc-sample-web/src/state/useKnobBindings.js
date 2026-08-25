@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useProjectState } from './ProjectContext';
 import { MODES, PAD_GRID_MODES } from './uiReducer';
-import { padKey, seqKey } from './projectReducer';
+import { padKey, seqKey, activePadFxNumber } from './projectReducer';
 import { PAD_FX_LIST, KNOB_FX_LIST, FILTER_TYPES } from '../data/constants';
 
 // Enum-type params (Color's Mode, Delay's Time division, Amp Sim's Cab Model, etc.) are stored as
@@ -184,9 +184,9 @@ export function useKnobBindings() {
     }
 
     if (ui.mode === MODES.PAD_FX) {
-      const activePad = Object.keys(project.padFx.active)[0];
+      const activePad = activePadFxNumber(project.padFx);
       if (!activePad) return [];
-      const fx = PAD_FX_LIST[Number(activePad) - 1];
+      const fx = PAD_FX_LIST[activePad - 1];
       const state = project.padFx.paramState?.[activePad] ?? {};
       return fx.params.map((p) => {
         const binding = buildParamBinding(p, state[p.key]);
@@ -202,8 +202,9 @@ export function useKnobBindings() {
             const paramState = { ...(project.padFx.paramState ?? {}) };
             paramState[activePad] = { ...(paramState[activePad] ?? {}), [p.key]: binding.toStored(v) };
             dispatchProject({ type: 'SET_PAD_FX_STATE', padFx: { ...project.padFx, paramState } });
-            const bpm = seqKey && (project.sequences[seqKey(project.currentSeqBank, project.currentSeq)].bpmMode === 'SEQ' ? project.sequences[seqKey(project.currentSeqBank, project.currentSeq)].bpm : project.globalBpm);
-            engine.setPadFxParams(Number(activePad), paramState[activePad], bpm);
+            const seq = project.sequences[seqKey(project.currentSeqBank, project.currentSeq)];
+            const bpm = seq.bpmMode === 'SEQ' ? seq.bpm : project.globalBpm;
+            engine.setPadFxParams(activePad, paramState[activePad], bpm);
           },
           formatValue: binding.formatValue,
         };

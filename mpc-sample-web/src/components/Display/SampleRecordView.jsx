@@ -41,6 +41,11 @@ export default function SampleRecordView() {
     };
   }, [cfg.source, cfg.monitor, engine]);
 
+  // Unwiring the graph above leaves the microphone track itself live - and the browser's recording
+  // indicator lit - for the rest of the session. Release it when Sample Record mode goes away.
+  // Kept separate from the attach effect so switching source/monitor doesn't drop the mic.
+  useEffect(() => () => engine.stopMicStream(), [engine]);
+
   const patch = (p) => dispatchProject({ type: 'SET_INPUT_CONFIG', patch: p });
 
   return (

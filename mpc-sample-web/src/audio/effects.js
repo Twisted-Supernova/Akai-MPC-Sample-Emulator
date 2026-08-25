@@ -141,8 +141,13 @@ function makeDelayEffect(ctx, { pingPong = false } = {}) {
 
   const delayL = ctx.createDelay(2);
   const delayR = ctx.createDelay(2);
+  // setParams uses setTargetAtTime, which approaches its target from whatever the gain currently
+  // is. A GainNode defaults to 1.0, so leaving these unset means the delay line regenerates at
+  // unity feedback for the duration of the first approach. Start where setParams would land.
   const feedbackL = ctx.createGain();
+  feedbackL.gain.value = 0.3;
   const feedbackR = ctx.createGain();
+  feedbackR.gain.value = 0.3;
   const merger = ctx.createChannelMerger(2);
   const splitter = ctx.createChannelSplitter(2);
 
@@ -225,6 +230,7 @@ function makeModDelayEffect(ctx, { voices = 1, feedbackCapable = false } = {}) {
     let feedback = null;
     if (feedbackCapable) {
       feedback = ctx.createGain();
+      feedback.gain.value = 0; // delay loop at the GainNode default of 1.0 regenerates without decay
       delay.connect(feedback);
       feedback.connect(delay);
     }
@@ -274,6 +280,7 @@ function makePhaserEffect(ctx, stages = 4) {
   for (let i = 0; i < filters.length - 1; i++) filters[i].connect(filters[i + 1]);
   input.connect(filters[0]);
   const feedback = ctx.createGain();
+  feedback.gain.value = 0; // allpass loop at the GainNode default of 1.0 self-oscillates
   filters[filters.length - 1].connect(feedback);
   feedback.connect(filters[0]);
   filters[filters.length - 1].connect(wet).connect(output);
@@ -417,6 +424,7 @@ function makeCaptureLoopEffect(ctx, kind) {
   const output = ctx.createGain();
   const capture = createLiveCapture(ctx, 4);
   input.connect(capture.node);
+  capture.sink.connect(output); // silent - keeps the capture node pulled by the render graph
   let currentSource = null;
   let timer = null;
 
@@ -721,6 +729,7 @@ function makeVinylEmulatorEffect(ctx) {
   hp.type = 'highpass';
   hp.frequency.value = 80;
   const noiseGain = ctx.createGain();
+  noiseGain.gain.value = 0; // full-scale noise source below; setParams fades up from here, not from 1.0
   const noiseSrc = ctx.createBufferSource();
   const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
   const nd = noiseBuf.getChannelData(0);
@@ -747,6 +756,7 @@ function makeTapeEmulatorEffect(ctx) {
   lfo.connect(lfoGain).connect(delay.delayTime);
   lfo.start();
   const noiseGain = ctx.createGain();
+  noiseGain.gain.value = 0; // see makeVinylEmulatorEffect - never let the noise source start at unity
   const noiseSrc = ctx.createBufferSource();
   const noiseBuf = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
   const nd = noiseBuf.getChannelData(0);

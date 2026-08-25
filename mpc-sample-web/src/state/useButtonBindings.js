@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useProjectState } from './ProjectContext';
 import { MODES } from './uiReducer';
-import { padKey, seqKey, createInitialProject } from './projectReducer';
+import { padKey, seqKey, createInitialProject, activePadFxNumber } from './projectReducer';
 
 // Central legend for the B1/B2/B3 function buttons - mirrors useKnobBindings for K1-K3.
 function normalizeSample(engine, pad, applyPatch) {
@@ -134,7 +134,7 @@ export function useButtonBindings() {
     }
 
     if (ui.mode === MODES.PAD_FX) {
-      const activePad = Number(Object.keys(project.padFx.active)[0]);
+      const activePad = activePadFxNumber(project.padFx);
       return {
         b1: {
           label: 'Latch',

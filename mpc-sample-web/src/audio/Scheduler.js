@@ -1,4 +1,4 @@
-import { PPQN } from '../data/constants';
+import { PPQN, TICKS_PER_BAR } from '../data/constants';
 
 const LOOKAHEAD_MS = 25;
 const SCHEDULE_AHEAD_SEC = 0.1;
@@ -26,6 +26,10 @@ export class Scheduler {
   }
 
   start(fromTick = 0) {
+    // Starting while already running would overwrite this.timer and orphan the previous interval -
+    // unstoppable, and scheduling the same events a second time. Restarting is the caller's intent,
+    // so tear the old one down rather than refusing.
+    this.stop();
     this.engine.ensureContext();
     this.engine.resume();
     this.currentTick = fromTick;
@@ -45,7 +49,7 @@ export class Scheduler {
     const bpm = this.callbacks.getBpm();
     const sequence = this.callbacks.getSequence();
     if (!sequence) return;
-    const ticksPerBar = sequence.timeSigTicksPerBar ?? PPQN * 4;
+    const ticksPerBar = sequence.timeSigTicksPerBar ?? TICKS_PER_BAR;
     const totalTicks = sequence.bars * ticksPerBar;
     const secPerTick = this.secondsPerTick(bpm);
 
